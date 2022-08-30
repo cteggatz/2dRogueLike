@@ -340,17 +340,27 @@ const player = {
             )
     },
     update:function(dt){
-        if(this.keys[0]==true){this.move(0,-this.speed*dt)}
-        if(this.keys[1]==true){this.move(0,this.speed*dt)}
-        if(this.keys[2]==true){this.move(-this.speed*dt,0)}
-        if(this.keys[3]==true){this.move(this.speed*dt,0)}
+        if(this.keys[0]==true){this.vVec.y += -this.speed*dt}
+        if(this.keys[1]==true){this.vVec.y += this.speed*dt}
+        if(this.keys[2]==true){this.vVec.x += -this.speed*dt}
+        if(this.keys[3]==true){this.vVec.x += this.speed*dt}
+        this.move(this.vVec.x, this.vVec.y);
     },
-    move:function(x,y){
-        this.x += x
-        this.y += y
+    move:function(vx,vy){
+        if(vy != 0 || vx != 0){
+            this.move(vx,0);
+            this.move(0,vy);
+            return;
+        }
+        if(!this.collision(vx, vy)){
+            this.x += vx;
+            this.y += vy;
+        }
     },
     collision:function(vx, vy){
-        
+        var futureX = this.x + vx;
+        var futureY = this.y + vy;
+        //check for position of tile entities and entities
     }
 }
 //event listeners
