@@ -184,11 +184,6 @@ const player = {
                 }
         }
         return false;
-    },
-    debugPlayerPos: function(){
-        var playerX = Math.floor(player.getX()/tileUpscale);
-        var playerY = Math.floor(player.getY()/tileUpscale);
-        console.log(map2.rigid(playerY, playerX))
     }
 }
 //objects
@@ -352,7 +347,6 @@ window.onload = ()=>{
         if(e.key == "S" || e.key == "s"){player.keys[1] = true}
         if(e.key == "A" || e.key == "a"){player.keys[2] = true}
         if(e.key == "D" || e.key == "d"){player.keys[3] = true}
-        if(e.shiftKey){player.keys[4]=true}
         if(e.key == "k"){player.debugPlayerPos()}
     })
     document.addEventListener("keyup", (e)=>{
