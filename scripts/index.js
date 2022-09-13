@@ -9,7 +9,7 @@ const debugStack = []
 const mapStack = []
 
 //game variables
-let map = 0;
+let mapNumber = 0;
 
 //functions
 const boxCollision = function(boxOne, boxTwo){ 
@@ -140,9 +140,9 @@ const player = {
         if(this.keys[1]==true){this.vVec.y = this.speed*dt}
         if(this.keys[2]==true){this.vVec.x = -this.speed*dt}
         if(this.keys[3]==true){this.vVec.x = this.speed*dt}
-        this.move(this.vVec.x, this.vVec.y, testMap);
+        this.move(this.vVec.x, this.vVec.y);
     },
-    move:function(vx,vy, map){
+    move:function(vx,vy){
         if(vy != 0 && vx != 0){
             this.move(vx,0);
             this.move(0,vy);
@@ -155,15 +155,15 @@ const player = {
     },
     collision:function(vx, vy){
         var futureX = (this.x + vx);
-        var map = testMap
+        var map = mapStack[mapNumber]
         var futureY = (this.y + vy);
         var playerX = Math.floor(player.getX()/tileUpscale);
         var playerY = Math.floor(player.getY()/tileUpscale);
         //tile collision || change map stack
         for(let i = playerY-1; i<=(playerY+1); i++){
             for(let j = playerX-1; j<=(playerX+1); j++){
-                if(j==playerX && i==playerY){continue}
-                if(map.rigid(i,j)==false){continue}
+                if(j===playerX && i===playerY){continue}
+                if(map.rigid(i,j)===false){continue}
                 if(futureX + tileUpscale-40 >= j*64 && 
                     futureX-32 <= (j*64)+map.tileSize &&
                     futureY + tileUpscale-32>= i*64 &&
@@ -184,6 +184,11 @@ const player = {
                 }
         }
         return false;
+    },
+    debugPlayerPos: function(){
+        var playerX = Math.floor(player.getX()/tileUpscale);
+        var playerY = Math.floor(player.getY()/tileUpscale);
+        console.log(map2.rigid(playerY, playerX))
     }
 }
 //objects
@@ -191,7 +196,7 @@ class GameObject{
     constructor(pos, size, rigid){
         this.pos = pos;
         this.size = size;
-        this.rigid = rigid
+        this.rigid = rigid;
         this.color= "red"
         entityStack.push(this)
     }
@@ -208,7 +213,7 @@ class GameObject{
     }
     onCollision(object){
         this.color="blue"
-        map = 1;
+        mapNumber = 1;
     }
 }
 
@@ -288,7 +293,7 @@ const map2 = new TileMap(64, 4,
      [0,2,2,2,2,2,2,2,2,2,0],
      [0,0,0,0,0,0,0,0,0,0,0]], [0])
 const viewport = new Viewport(player.x,player.y,576,576)
-const box = new GameObject({x:256, y:256}, {w:64, h:100}, true)
+const box = new GameObject({x:256, y:256}, {w:64, h:100}, false)
 new FpsCounter();
 const playerDebug = new PlayerDebug(player.x, player.y, player.vVec)
 
@@ -308,8 +313,7 @@ function update(dt){
     playerDebug.update(player.x, player.y, player.vVec)
 }
 function draw(dt){
-    mapStack[map].draw()
-    player.draw()
+    mapStack[mapNumber].draw()
     //draw Entity stack
     for(var i =0; i<entityStack.length;i++){
         if(entityStack[i].pos.x-20 <= Math.ceil(viewport.x+viewport.w) &&
@@ -319,6 +323,7 @@ function draw(dt){
                 entityStack[i].draw(viewport)
             }
     }
+    player.draw()
     //draw Debug Counters
     for(var i=0; i<debugStack.length;i++){
         debugStack[i].draw(ctx)
@@ -340,7 +345,7 @@ function gameLoop(tick){
 window.onload = ()=>{
     ctx.canvas.height = document.documentElement.clientHeight;
     ctx.canvas.width = document.documentElement.clientWidth;
-
+    console.log(map2.rigid(6, 1))
     //event listeners
     document.addEventListener("keydown", (e)=>{
         if(e.key == "W" || e.key == "w"){player.keys[0] = true}
@@ -348,6 +353,7 @@ window.onload = ()=>{
         if(e.key == "A" || e.key == "a"){player.keys[2] = true}
         if(e.key == "D" || e.key == "d"){player.keys[3] = true}
         if(e.shiftKey){player.keys[4]=true}
+        if(e.key == "k"){player.debugPlayerPos()}
     })
     document.addEventListener("keyup", (e)=>{
         if(e.key == "W" || e.key == "w"){player.keys[0] = false}
