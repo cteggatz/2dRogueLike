@@ -1,0 +1,9 @@
+✔ Fix player and camera @done(22-08-29 23:20)
+    ✔ get player to go in true pos and draw camera over it @done(22-08-29 23:20)
+
+✔ Add player collision system. @done(22-09-10 22:25)
+Revamp Tile maping system.
+    add layers
+    add more than one level
+    ability to transition between levels
+    
