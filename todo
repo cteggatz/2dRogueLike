@@ -7,3 +7,7 @@ Revamp Tile maping system.
     add more than one level
     ability to transition between levels
     
+☐ Refactor Entity Collision Systems, remove player based entity collison
+☐ Add stage system for maps:
+    ☐ adds local entity stacks that helps only render and generate stages entities
+    ☐ adds locking so player cannot use door to get out until mobs cleared
