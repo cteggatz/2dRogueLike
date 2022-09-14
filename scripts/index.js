@@ -21,6 +21,15 @@ const boxCollision = function(boxOne, boxTwo){
     }
     return false
 }
+const PlayerBoxCollision = function(player, boxTwo){
+    if(player.x + player.size >= boxTwo.pos.x &&
+        player.x <= boxTwo.pos.x + boxTwo.size.w &&
+        player.y + player.size >= boxTwo.pos.y &&
+        player.y <= boxTwo.pos.y + boxTwo.size.h){
+        return true
+    }
+    return false
+}
 
 //classes
 //TileMaps
@@ -192,7 +201,7 @@ class GameObject{
         this.pos = pos;
         this.size = size;
         this.rigid = rigid;
-        this.color= "red"
+        this.color= "black"
         entityStack.push(this)
     }
     draw(viewport){
@@ -204,11 +213,40 @@ class GameObject{
             this.size.h)
     }
     update(){
-
     }
     onCollision(object){
-        this.color="blue"
-        mapNumber = 1;
+    }
+}
+class Door extends GameObject{
+    constructor(pos, size, rigid, maps, gates){
+        super(pos, size, rigid);
+        this.color = "black"
+        this.mapSwitch = true;
+        this.changeMap = true;
+        this.maps = maps;
+        this.gates = gates;
+    }
+    update(){
+        if(PlayerBoxCollision(player, this) !== true && this.changeMap == false){
+            this.changeMap = true
+        }
+        if(PlayerBoxCollision(player, this) == true && this.changeMap == true){
+            if(this.mapSwitch == true){
+                mapNumber = mapStack.indexOf(this.maps[1]);
+                this.changeMap = false; this.mapSwitch = false;
+                this.pos = this.gates[1];
+                player.x = this.gates[1].x+player.size;
+                player.y = this.gates[1].y+player.size;
+                return
+            }
+            if(this.mapSwitch == false) {
+                mapNumber = mapStack.indexOf(this.maps[0]);
+                this.changeMap = false; this.mapSwitch = true;
+                this.pos = this.gates[0]
+                player.x = this.gates[0].x+player.size;
+                player.y = this.gates[0].y+player.size;
+            }
+        }
     }
 }
 
@@ -255,8 +293,8 @@ const testMap = new TileMap(64, 4,
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
@@ -283,12 +321,13 @@ const map2 = new TileMap(64, 4,
     [[0,0,0,0,0,0,0,0,0,0,0],
      [0,2,2,2,2,2,2,2,2,2,0],
      [0,2,2,2,2,2,2,2,2,2,0],  
-     [0,2,2,2,2,2,2,2,2,2,0],
-     [0,2,2,2,2,2,2,2,2,2,0],
+     [2,2,2,2,2,2,2,2,2,2,2],
+     [2,2,2,2,2,2,2,2,2,2,2],
      [0,2,2,2,2,2,2,2,2,2,0],
      [0,0,0,0,0,0,0,0,0,0,0]], [0])
 const viewport = new Viewport(player.x,player.y,576,576)
-const box = new GameObject({x:256, y:256}, {w:64, h:100}, false)
+//const box = new GameObject({x:-64, y:256-64}, {w:64, h:128}, false)
+const door = new Door({x:-64, y:256-64}, {w:64, h:128}, false, [testMap, map2], [{x:-64, y: 256-64}, {x:64*11,y: 256-64}])
 new FpsCounter();
 const playerDebug = new PlayerDebug(player.x, player.y, player.vVec)
 
