@@ -10,6 +10,7 @@ const mapStack = []
 
 //game variables
 let mapNumber = 0;
+let fps = 12;
 
 //functions
 const boxCollision = function(boxOne, boxTwo){ 
@@ -23,7 +24,7 @@ const boxCollision = function(boxOne, boxTwo){
 }
 const PlayerBoxCollision = function(player, boxTwo){
     if(player.x + player.size >= boxTwo.pos.x &&
-        player.x <= boxTwo.pos.x + boxTwo.size.w &&
+        player.x-32 <= boxTwo.pos.x + boxTwo.size.w &&
         player.y + player.size >= boxTwo.pos.y &&
         player.y <= boxTwo.pos.y + boxTwo.size.h){
         return true
@@ -220,7 +221,7 @@ class GameObject{
 class Door extends GameObject{
     constructor(pos, size, rigid, maps, gates){
         super(pos, size, rigid);
-        this.color = "black"
+        this.color = "red"
         this.mapSwitch = true;
         this.changeMap = true;
         this.maps = maps;
@@ -235,17 +236,24 @@ class Door extends GameObject{
                 mapNumber = mapStack.indexOf(this.maps[1]);
                 this.changeMap = false; this.mapSwitch = false;
                 this.pos = this.gates[1];
-                player.x = this.gates[1].x+player.size;
-                player.y = this.gates[1].y+player.size;
+                this.movePlayer(this.gates[1])
                 return
             }
             if(this.mapSwitch == false) {
                 mapNumber = mapStack.indexOf(this.maps[0]);
                 this.changeMap = false; this.mapSwitch = true;
                 this.pos = this.gates[0]
-                player.x = this.gates[0].x+player.size;
-                player.y = this.gates[0].y+player.size;
+                this.movePlayer(this.gates[0])
             }
+        }
+    }
+    movePlayer(gate){
+        if(gate.x >= 0){
+            player.x = gate.x-64;
+            player.y = gate.y+player.size;
+        } else {
+            player.x = gate.x+64;
+            player.y = gate.y+player.size;
         }
     }
 }
@@ -326,13 +334,14 @@ const map2 = new TileMap(64, 4,
      [0,2,2,2,2,2,2,2,2,2,0],
      [0,0,0,0,0,0,0,0,0,0,0]], [0])
 const viewport = new Viewport(player.x,player.y,576,576)
-//const box = new GameObject({x:-64, y:256-64}, {w:64, h:128}, false)
 const door = new Door({x:-64, y:256-64}, {w:64, h:128}, false, [testMap, map2], [{x:-64, y: 256-64}, {x:64*11,y: 256-64}])
 new FpsCounter();
 const playerDebug = new PlayerDebug(player.x, player.y, player.vVec)
 
 
 //game loops
+let intervalWait;
+
 function update(dt){
     player.update(dt)
     viewport.scrollTo(player.x, player.y)
@@ -375,7 +384,14 @@ function gameLoop(tick){
     draw(dt/1000);
     requestAnimationFrame(gameLoop)
 }
+/*
+    add timer var in all entities
 
+    var animateTimer = 0;
+    if(animteTimer % Math.ceil(Math.trunc(1/d)/fps) = 0){ animation :smile:};
+    if(animateTimer >= (Math.trunc(1/d)){animateTimer = 0;}
+    animeTimer++;
+*/
 window.onload = ()=>{
     ctx.canvas.height = document.documentElement.clientHeight;
     ctx.canvas.width = document.documentElement.clientWidth;
@@ -386,6 +402,7 @@ window.onload = ()=>{
         if(e.key == "S" || e.key == "s"){player.keys[1] = true}
         if(e.key == "A" || e.key == "a"){player.keys[2] = true}
         if(e.key == "D" || e.key == "d"){player.keys[3] = true}
+        if(e.shiftKey){player.keys[4]=true}
         if(e.key == "k"){player.debugPlayerPos()}
     })
     document.addEventListener("keyup", (e)=>{
