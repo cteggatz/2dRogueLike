@@ -359,9 +359,9 @@ function draw(dt){
     mapStack[mapNumber].draw()
     //draw Entity stack
     for(var i =0; i<entityStack.length;i++){
-        if(entityStack[i].pos.x-20 <= Math.ceil(viewport.x+viewport.w) &&
+        if(entityStack[i].pos.x <= Math.ceil(viewport.x+viewport.w) &&
             entityStack[i].pos.x+entityStack[i].size.w  > viewport.x &&
-            entityStack[i].pos.y-20 < Math.ceil(viewport.y+ viewport.h) &&
+            entityStack[i].pos.y< Math.ceil(viewport.y+ viewport.h) &&
             entityStack[i].pos.y  + entityStack[i].size.h > viewport.y){
                 entityStack[i].draw(viewport)
             }
