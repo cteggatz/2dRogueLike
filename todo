@@ -11,3 +11,7 @@ Revamp Tile maping system.
 ☐ Add stage system for maps:
     ☐ adds local entity stacks that helps only render and generate stages entities
     ☐ adds locking so player cannot use door to get out until mobs cleared 
+
+☐ Change Player animation system
+    make it so idol animation only has 2 frames less space
+    get it to have multiple animation frames on on sprite sheet

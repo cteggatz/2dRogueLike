@@ -128,13 +128,14 @@ const player = {
     vVec: {x:0, y:0},
     size: 64,
     speed: 200,
-    tileSheet: document.getElementById("TestTileSheet"),
+    frame: 0,
+    tileSheet: document.getElementById("PlayerIdolSheet"),
     keys: [false, false, false, false, false],
     getX: function(){return this.x},
     getY: function(){return this.y},
     draw: function(){
         ctx.drawImage(
-            this.tileSheet,this.size*4, 0, 
+            this.tileSheet,this.size*this.frame-1, 0, 
             this.size, this.size,
             ctx.canvas.width*0.5- this.size*0.5,
             ctx.canvas.height*0.5 -this.size*0.5,
@@ -151,6 +152,9 @@ const player = {
         if(this.keys[2]==true){this.vVec.x = -this.speed*dt}
         if(this.keys[3]==true){this.vVec.x = this.speed*dt}
         this.move(this.vVec.x, this.vVec.y);
+        if(this.frame >= 11){
+            this.frame = 0;
+        }
     },
     move:function(vx,vy){
         if(vy != 0 && vx != 0){
@@ -203,6 +207,7 @@ class GameObject{
         this.size = size;
         this.rigid = rigid;
         this.color= "black"
+        this.frame = 0;
         entityStack.push(this)
     }
     draw(viewport){
@@ -214,6 +219,12 @@ class GameObject{
             this.size.h)
     }
     update(){
+    }
+    nextFrame(){
+        this.frame++;
+        if(this.frame >= 12){
+            this.frame = 0;
+        }
     }
     onCollision(object){
     }
@@ -246,7 +257,13 @@ class Door extends GameObject{
                 this.movePlayer(this.gates[0])
             }
         }
+        if(this.frame == 6){
+            this.color = "blue"
+        } if(this.frame == 0){
+            this.color = "red"
+        }
     }
+
     movePlayer(gate){
         if(gate.x >= 0){
             player.x = gate.x-64;
@@ -341,8 +358,12 @@ const playerDebug = new PlayerDebug(player.x, player.y, player.vVec)
 
 //game loops
 let intervalWait;
+let animationTimer = 0;
+let animate = false;
+//let testGate = 0;
 
 function update(dt){
+    animate = false;
     player.update(dt)
     viewport.scrollTo(player.x, player.y)
     //draw entity stack
@@ -353,7 +374,13 @@ function update(dt){
     for(var i = 0; i<debugStack.length;i++){
         debugStack[i].update(dt);
     }
-    playerDebug.update(player.x, player.y, player.vVec)
+    playerDebug.update(player.x, player.y, player.vVec);
+    animationTimer++;
+    if(animationTimer > Math.ceil(Math.trunc(1/dt))/12){
+        animationTimer = 1;
+        player.frame++;
+        animate = true
+    }
 }
 function draw(dt){
     mapStack[mapNumber].draw()
@@ -363,6 +390,9 @@ function draw(dt){
             entityStack[i].pos.x+entityStack[i].size.w  > viewport.x &&
             entityStack[i].pos.y< Math.ceil(viewport.y+ viewport.h) &&
             entityStack[i].pos.y  + entityStack[i].size.h > viewport.y){
+                if(animate){
+                    entityStack[i].nextFrame();
+                }
                 entityStack[i].draw(viewport)
             }
     }
@@ -384,18 +414,10 @@ function gameLoop(tick){
     draw(dt/1000);
     requestAnimationFrame(gameLoop)
 }
-/*
-    add timer var in all entities
-
-    var animateTimer = 0;
-    if(animteTimer % Math.ceil(Math.trunc(1/d)/fps) = 0){ animation :smile:};
-    if(animateTimer >= (Math.trunc(1/d)){animateTimer = 0;}
-    animeTimer++;
-*/
 window.onload = ()=>{
     ctx.canvas.height = document.documentElement.clientHeight;
     ctx.canvas.width = document.documentElement.clientWidth;
-    console.log(map2.rigid(6, 1))
+    //setTimeout(()=>{console.log(testGate)},1000)
     //event listeners
     document.addEventListener("keydown", (e)=>{
         if(e.key == "W" || e.key == "w"){player.keys[0] = true}
