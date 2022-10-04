@@ -91,11 +91,11 @@ Viewport.prototype = {
         ctx.fillRect(
             ctx.canvas.width*0.5-this.w*0.5-64, 
             ctx.canvas.height*0.5- this.h*0.5-64,
-            64, 706)
+            64, 710)
         ctx.fillRect(
-            ctx.canvas.width*0.5+this.w*0.5 ,
+            ctx.canvas.width*0.5+this.w*0.5+2,
             ctx.canvas.height*0.5-this.h*0.5-64,
-            64, 706)
+            64, 710)
         ctx.fillRect(
             ctx.canvas.width*0.5-this.w*0.5-2, 
             ctx.canvas.height*0.5-this.h*0.5-64,
@@ -129,13 +129,14 @@ const player = {
     size: 64,
     speed: 200,
     frame: 0,
-    tileSheet: document.getElementById("PlayerIdolSheet"),
+    animationState: 0,
+    tileSheet: document.getElementById("PlayerTileSheet"),
     keys: [false, false, false, false, false],
     getX: function(){return this.x},
     getY: function(){return this.y},
     draw: function(){
         ctx.drawImage(
-            this.tileSheet,this.size*this.frame-1, 0, 
+            this.tileSheet,this.size*this.frame-1, this.animationState*64, 
             this.size, this.size,
             ctx.canvas.width*0.5- this.size*0.5,
             ctx.canvas.height*0.5 -this.size*0.5,
@@ -145,12 +146,20 @@ const player = {
     update:function(dt){
         if(this.keys[4]==true){this.speed = 275};
         if(this.keys[4]==false){this.speed = 200};
-        if(this.keys[0]==false||this.keys[1]==false){this.vVec.y=0}
-        if(this.keys[2]==false||this.keys[3]==false){this.vVec.x=0}
+        if(this.keys[0]==false||this.keys[1]==false){
+            this.vVec.y=0
+            this.animationState = 1;
+            //this.frame = 0;
+        }
+        if(this.keys[2]==false||this.keys[3]==false){
+            this.vVec.x=0
+            this.animationState = 1;
+            //this.frame=0;
+        }
         if(this.keys[0]==true){this.vVec.y = -this.speed*dt}
         if(this.keys[1]==true){this.vVec.y = this.speed*dt}
-        if(this.keys[2]==true){this.vVec.x = -this.speed*dt}
-        if(this.keys[3]==true){this.vVec.x = this.speed*dt}
+        if(this.keys[2]==true){this.vVec.x = -this.speed*dt; this.animationState = 0}
+        if(this.keys[3]==true){this.vVec.x = this.speed*dt; this.animationState = 2}
         this.move(this.vVec.x, this.vVec.y);
         if(this.frame >= 11){
             this.frame = 0;
@@ -274,6 +283,17 @@ class Door extends GameObject{
         }
     }
 }
+class Jared extends GameObject{
+    constructor(pos, size, rigid){
+        super(pos,size,rigid);
+        this.color = "purple";
+
+        entityStack.push(this);
+    }
+    update(){
+
+    }
+}
 
 
 //debugs
@@ -352,6 +372,7 @@ const map2 = new TileMap(64, 4,
      [0,0,0,0,0,0,0,0,0,0,0]], [0])
 const viewport = new Viewport(player.x,player.y,576,576)
 const door = new Door({x:-64, y:256-64}, {w:64, h:128}, false, [testMap, map2], [{x:-64, y: 256-64}, {x:64*11,y: 256-64}])
+const jared = new Jared({x:400, y:400}, {w:32, h:32}, false);
 new FpsCounter();
 const playerDebug = new PlayerDebug(player.x, player.y, player.vVec)
 
