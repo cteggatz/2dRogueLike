@@ -284,15 +284,39 @@ class Door extends GameObject{
     }
 }
 class Jared extends GameObject{
+    speed = 200;
+    vVec = {x: 0, y:0};
     constructor(pos, size, rigid){
         super(pos,size,rigid);
         this.color = "purple";
-
         entityStack.push(this);
     }
-    update(){
-
+    update(dt){
+        //implement quadrents for every side of the enemy
+        //then you can solve for each side of the triangle and good smoothe movement
+        // speed*dt = (3*dt)^2 + (x*dt)^2
     }
+    drawLine(){
+        ctx.beginPath();
+        ctx.moveTo(
+            this.pos.x + this.size.w/2 - viewport.x + ctx.canvas.width*0.5-viewport.w/2,
+            this.pos.y +this.size.h/2- viewport.y + ctx.canvas.height*0.5-viewport.h/2
+        );
+        ctx.strokeStyle = "cyan"
+        ctx.lineWidth = 5;
+        ctx.lineTo(ctx.canvas.width*0.5, ctx.canvas.height*0.5);
+        ctx.stroke();
+    }
+    move(x,y){
+        if(x != 0 && y!= 0){
+            move(x, 0);
+            move(0,y);
+            return;
+        }
+        this.pos.x = x;
+        this.pos.y = y;
+    }
+    getPlayerDist = ()=> {return Math.sqrt(Math.pow(this.pos.x - player.x, 2) + Math.pow(this.pos.y - player.y, 2))}
 }
 
 
@@ -314,12 +338,14 @@ const PlayerDebug = function(playerX, playerY, playerVVec){
     this.x = playerX;
     this.y = playerY;
     this.Vec = playerVVec;
+    this.dt = 0;
 }
 PlayerDebug.prototype = {
-    update:function(x, y, vVec){
+    update:function(x, y, vVec, dt){
         this.x = x;
         this.y = y; 
         this.vVec = vVec;
+        this.dt = dt
     },
     draw: function(ctx){
         ctx.fillStyle = "white"
@@ -327,6 +353,7 @@ PlayerDebug.prototype = {
         ctx.fillText(`Player_y: ${Math.floor(this.y/tileUpscale)}, ${this.y}`,10,30)
         ctx.fillText(`Player_Velocity: ${this.vVec.x}, ${this.vVec.y}`,10,40)
         ctx.fillText(`W: ${player.keys[0]}, S: ${player.keys[1]}, a: ${player.keys[2]}, d: ${player.keys[3]} Shift: ${player.keys[4]}`,10,50)
+        ctx.fillText(`delta time: ${this.dt}`, 10, 60)
     }
 }
 
@@ -395,7 +422,7 @@ function update(dt){
     for(var i = 0; i<debugStack.length;i++){
         debugStack[i].update(dt);
     }
-    playerDebug.update(player.x, player.y, player.vVec);
+    playerDebug.update(player.x, player.y, player.vVec, dt);
     animationTimer++;
     if(animationTimer > Math.ceil(Math.trunc(1/dt))/12){
         animationTimer = 1;
@@ -424,6 +451,7 @@ function draw(dt){
     }
     viewport.draw()
     playerDebug.draw(ctx)
+    jared.drawLine()
 }
 let lastTick = Date.now();
 function gameLoop(tick){
