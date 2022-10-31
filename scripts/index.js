@@ -35,7 +35,7 @@ const PlayerBoxCollision = function(player, boxTwo){
 //classes
 //TileMaps
 class TileMap{
-    constructor(tileSize, tileAmmounts, tileSet, tileMap, rigidTiles){
+    constructor(tileSize, tileAmmounts, tileSet, tileMap, rigidTiles, entityInit){
         this.tileMap = tileMap;
         this.tileSize = tileSize;
         this.tileAmmounts = tileAmmounts;
@@ -43,7 +43,7 @@ class TileMap{
         this.rigidTiles = rigidTiles;
         rigidTiles.prototype = [];
         mapStack.push(this);
-        this.localEntityStack = [];
+        this.localEntityStack = entityInit
     }
     get getlength(){return this.tileMap[0].length}
     get getheight(){return this.tileMap.length}
@@ -413,7 +413,7 @@ const testMap = new TileMap(64, 4,
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
-],[3])
+],[3], [new Jared({x:400, y:400}, {w:32, h:32}, false)])
 const map2 = new TileMap(64, 4, 
     document.getElementById("TestTileSheet"),
     [[0,0,0,0,0,0,0,0,0,0,0],
@@ -422,7 +422,7 @@ const map2 = new TileMap(64, 4,
      [2,2,2,2,2,2,2,2,2,2,2],
      [2,2,2,2,2,2,2,2,2,2,2],
      [0,2,2,2,2,2,2,2,2,2,0],
-     [0,0,0,0,0,0,0,0,0,0,0]], [0]);
+     [0,0,0,0,0,0,0,0,0,0,0]], [0], []);
 const map3 = new TileMap(64, 4, 
     document.getElementById("TestTileSheet"),
     [
@@ -435,12 +435,11 @@ const map3 = new TileMap(64, 4,
         [0,3,3,3,3,3,0],
         [0,3,3,3,3,3,0],
         [0,0,0,0,0,0,0]
-    ], [0])
+    ], [0], [])
 const viewport = new Viewport(player.x,player.y,576,576)
 new Door({x:-32, y:64*3},{w:64, h:128}, false, [map2, map3], [{x:-32, y: 64*3}, {x:6*64+32, y:4*64}]
 )
 new Door({x:-64, y:256-64}, {w:64, h:128}, false, [testMap, map2], [{x:-64, y: 256-64}, {x:64*11,y: 256-64}])
-testMap.localEntityStack.push(new Jared({x:400, y:400}, {w:32, h:32}, false));
 new FpsCounter();
 const playerDebug = new PlayerDebug(player.x, player.y, player.vVec)
 
