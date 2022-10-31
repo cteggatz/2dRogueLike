@@ -43,6 +43,7 @@ class TileMap{
         this.rigidTiles = rigidTiles;
         rigidTiles.prototype = [];
         mapStack.push(this);
+        this.localEntityStack = [];
     }
     get getlength(){return this.tileMap[0].length}
     get getheight(){return this.tileMap.length}
@@ -217,7 +218,7 @@ class GameObject{
         this.rigid = rigid;
         this.color= "black"
         this.frame = 0;
-        entityStack.push(this)
+
     }
     draw(viewport){
         ctx.fillStyle = this.color
@@ -246,6 +247,8 @@ class Door extends GameObject{
         this.changeMap = true;
         this.maps = maps;
         this.gates = gates;
+        maps[0].localEntityStack.push(this);
+        maps[1].localEntityStack.push(this);
     }
     update(){
         if(PlayerBoxCollision(player, this) !== true && this.changeMap == false){
@@ -290,9 +293,9 @@ class Jared extends GameObject{
         super(pos,size,rigid);
         this.color = "purple";
         this.dtTimer = 0;
-        entityStack.push(this);
     }
     update(dt){
+        
         var xDif = player.x - this.pos.x;
         var yDif = player.y - this.pos.y;
         var hypotinuse = Math.sqrt(Math.pow(xDif,2) + Math.pow(yDif,2));
@@ -304,6 +307,21 @@ class Jared extends GameObject{
             this.pos.x += xMove;
             this.pos.y += yMove;
         } else {this.dtTimer++}
+    }
+    draw(viewport){
+        if(this.frame < 7){
+            ctx.drawImage(document.getElementById("GhostTileSheet"),0,0,
+            this.size.w, this.size.w, 
+            this.pos.x - viewport.x +ctx.canvas.width*0.5-viewport.w/2,
+            this.pos.y - viewport.y +ctx.canvas.height*0.5-viewport.h/2,
+            this.size.w, this.size.h)
+        } else {
+            ctx.drawImage(document.getElementById("GhostTileSheet"),4*64-1,0,
+            this.size.w, this.size.w, 
+            this.pos.x - viewport.x +ctx.canvas.width*0.5-viewport.w/2,
+            this.pos.y - viewport.y +ctx.canvas.height*0.5-viewport.h/2,
+            this.size.w, this.size.h)
+        }
     }
     drawLine(){
         ctx.beginPath();
@@ -325,7 +343,6 @@ class Jared extends GameObject{
         this.pos.x = x;
         this.pos.y = y;
     }
-    //getPlayerDist = ()=> {return Math.sqrt(Math.pow(this.pos.x - player.x, 2) + Math.pow(this.pos.y - player.y, 2))}
 }
 
 
@@ -405,10 +422,25 @@ const map2 = new TileMap(64, 4,
      [2,2,2,2,2,2,2,2,2,2,2],
      [2,2,2,2,2,2,2,2,2,2,2],
      [0,2,2,2,2,2,2,2,2,2,0],
-     [0,0,0,0,0,0,0,0,0,0,0]], [0])
+     [0,0,0,0,0,0,0,0,0,0,0]], [0]);
+const map3 = new TileMap(64, 4, 
+    document.getElementById("TestTileSheet"),
+    [
+        [0,0,0,0,0,0,0],
+        [0,3,3,3,3,3,0],
+        [0,3,3,3,3,3,0],
+        [0,3,3,3,3,3,0],
+        [0,3,3,3,3,3,3],
+        [0,3,3,3,3,3,3],
+        [0,3,3,3,3,3,0],
+        [0,3,3,3,3,3,0],
+        [0,0,0,0,0,0,0]
+    ], [0])
 const viewport = new Viewport(player.x,player.y,576,576)
-const door = new Door({x:-64, y:256-64}, {w:64, h:128}, false, [testMap, map2], [{x:-64, y: 256-64}, {x:64*11,y: 256-64}])
-const jared = new Jared({x:400, y:400}, {w:32, h:32}, false);
+new Door({x:-32, y:64*3},{w:64, h:128}, false, [map2, map3], [{x:-32, y: 64*3}, {x:6*64+32, y:4*64}]
+)
+new Door({x:-64, y:256-64}, {w:64, h:128}, false, [testMap, map2], [{x:-64, y: 256-64}, {x:64*11,y: 256-64}])
+testMap.localEntityStack.push(new Jared({x:400, y:400}, {w:32, h:32}, false));
 new FpsCounter();
 const playerDebug = new PlayerDebug(player.x, player.y, player.vVec)
 
@@ -427,6 +459,9 @@ function update(dt){
     for(var i = 0; i<entityStack.length;i++){
         entityStack[i].update(dt)
     }
+    for(var i = 0; i<mapStack[mapNumber].localEntityStack.length; i++){
+        mapStack[mapNumber].localEntityStack[i].update(dt);
+    }
     //draw debug stack
     for(var i = 0; i<debugStack.length;i++){
         debugStack[i].update(dt);
@@ -442,6 +477,7 @@ function update(dt){
 function draw(dt){
     mapStack[mapNumber].draw()
     //draw Entity stack
+    /*
     for(var i =0; i<entityStack.length;i++){
         if(entityStack[i].pos.x <= Math.ceil(viewport.x+viewport.w) &&
             entityStack[i].pos.x+entityStack[i].size.w  > viewport.x &&
@@ -451,6 +487,18 @@ function draw(dt){
                     entityStack[i].nextFrame();
                 }
                 entityStack[i].draw(viewport)
+            }sa
+    }
+    */
+    for(var i =0; i<mapStack[mapNumber].localEntityStack.length;i++){
+        if(mapStack[mapNumber].localEntityStack[i].pos.x <= Math.ceil(viewport.x+viewport.w) &&
+        mapStack[mapNumber].localEntityStack[i].pos.x+mapStack[mapNumber].localEntityStack[i].size.w  > viewport.x &&
+        mapStack[mapNumber].localEntityStack[i].pos.y< Math.ceil(viewport.y+ viewport.h) &&
+        mapStack[mapNumber].localEntityStack[i].pos.y  + mapStack[mapNumber].localEntityStack[i].size.h > viewport.y){
+                if(animate){
+                    mapStack[mapNumber].localEntityStack[i].nextFrame();
+                }
+                mapStack[mapNumber].localEntityStack[i].draw(viewport)
             }
     }
     player.draw()
@@ -460,7 +508,6 @@ function draw(dt){
     }
     viewport.draw()
     playerDebug.draw(ctx)
-    jared.drawLine()
 }
 let lastTick = Date.now();
 function gameLoop(tick){
