@@ -284,17 +284,26 @@ class Door extends GameObject{
     }
 }
 class Jared extends GameObject{
-    speed = 200;
+    speed = 100;
     vVec = {x: 0, y:0};
     constructor(pos, size, rigid){
         super(pos,size,rigid);
         this.color = "purple";
+        this.dtTimer = 0;
         entityStack.push(this);
     }
     update(dt){
-        //implement quadrents for every side of the enemy
-        //then you can solve for each side of the triangle and good smoothe movement
-        // speed*dt = (3*dt)^2 + (x*dt)^2
+        var xDif = player.x - this.pos.x;
+        var yDif = player.y - this.pos.y;
+        var hypotinuse = Math.sqrt(Math.pow(xDif,2) + Math.pow(yDif,2));
+        var deltaSpeed = dt*this.speed;
+        var xMove = (xDif * deltaSpeed) / hypotinuse;
+        var yMove = (yDif * deltaSpeed) / hypotinuse;
+        
+        if(this.dtTimer > 2){
+            this.pos.x += xMove;
+            this.pos.y += yMove;
+        } else {this.dtTimer++}
     }
     drawLine(){
         ctx.beginPath();
@@ -316,7 +325,7 @@ class Jared extends GameObject{
         this.pos.x = x;
         this.pos.y = y;
     }
-    getPlayerDist = ()=> {return Math.sqrt(Math.pow(this.pos.x - player.x, 2) + Math.pow(this.pos.y - player.y, 2))}
+    //getPlayerDist = ()=> {return Math.sqrt(Math.pow(this.pos.x - player.x, 2) + Math.pow(this.pos.y - player.y, 2))}
 }
 
 

@@ -7,7 +7,7 @@ Revamp Tile maping system.
     add more than one level
     ability to transition between levels
     
-☐ Refactor Entity Collision Systems, remove player based entity collison
+✔ Refactor Entity Collision Systems, remove player based entity collison @done(22-10-30 20:39)
 ☐ Add stage system for maps:
     ☐ adds local entity stacks that helps only render and generate stages entities
     ☐ adds locking so player cannot use door to get out until mobs cleared 
@@ -15,3 +15,7 @@ Revamp Tile maping system.
 ☐ Change Player animation system
     make it so idol animation only has 2 frames less space
     get it to have multiple animation frames on on sprite sheet
+
+☐ Implement path finding
+    ✔ added basic trianglue path finding @done(22-10-30 20:40)
+    ☐ add A* path finding
