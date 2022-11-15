@@ -181,6 +181,7 @@ const player = {
         var futureX = (this.x + vx);
         var map = mapStack[mapNumber]
         var futureY = (this.y + vy);
+        console.log(futureX)
         var playerX = Math.floor(player.getX()/tileUpscale);
         var playerY = Math.floor(player.getY()/tileUpscale);
         //tile collision || change map stack
@@ -196,13 +197,19 @@ const player = {
                     }
             }  
         }
-        for(var i = 0; i<entityStack.length; i++){
-            if(futureX + this.size -this.offset>= entityStack[i].pos.x &&
-                futureX - this.offset < entityStack[i].pos.x + entityStack[i].size.w &&
-                futureY + this.size -this.offset >= entityStack[i].pos.x &&
-                futureY-this.offset < entityStack[i].pos.y + entityStack[i].size.h){
-                    entityStack[i].onCollision(this);
-                    if(entityStack[i].rigid){
+        for(var i = 0; i<map.localEntityStack.length; i++){
+            if(futureX + this.size -this.offset>= map.localEntityStack[i].pos.x &&
+                futureX - this.offset < map.localEntityStack[i].pos.x + map.localEntityStack[i].size.w &&
+                futureY + this.size -this.offset >= map.localEntityStack[i].pos.x &&
+                futureY-this.offset < map.localEntityStack[i].pos.y + map.localEntityStack[i].size.h){
+                    map.localEntityStack[i].onCollision(this);
+                    if(map.localEntityStack[i].rigid){
+                        return true
+                    }
+                } else if(Math.floor(map.localEntityStack[i].pos.x) == Math.floor(this.x-this.offset) && Math.floor(map.localEntityStack[i].pos.y) == Math.floor(this.y-this.offset)){
+                    console.log("colliding")
+                    map.localEntityStack[i].onCollision(this);
+                    if(map.localEntityStack[i].rigid){
                         return true
                     }
                 }
@@ -343,6 +350,13 @@ class Jared extends GameObject{
         this.pos.x = x;
         this.pos.y = y;
     }
+    onCollision(player){
+        console.log("collideing")
+        mapStack[mapNumber].localEntityStack.splice(
+            mapStack[mapNumber].localEntityStack.indexOf(this),
+            1);
+        delete(this);
+    }
 }
 
 
@@ -380,11 +394,13 @@ PlayerDebug.prototype = {
         ctx.fillText(`Player_Velocity: ${this.vVec.x}, ${this.vVec.y}`,10,40)
         ctx.fillText(`W: ${player.keys[0]}, S: ${player.keys[1]}, a: ${player.keys[2]}, d: ${player.keys[3]} Shift: ${player.keys[4]}`,10,50)
         ctx.fillText(`delta time: ${this.dt}`, 10, 60)
+        ctx.fillText(`jared pos: ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.x)}, ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.y)}`, 10 ,70);
     }
 }
 
 
 //inits
+  //map init
 const testMap = new TileMap(64, 4, 
     document.getElementById("TestTileSheet"),
     [
@@ -435,8 +451,10 @@ const map3 = new TileMap(64, 4,
         [0,3,3,3,3,3,0],
         [0,3,3,3,3,3,0],
         [0,0,0,0,0,0,0]
-    ], [0], [])
-const viewport = new Viewport(player.x,player.y,576,576)
+    ], [0], []);
+  //viewport
+const viewport = new Viewport(player.x,player.y,576,576);
+  // door init
 new Door({x:-32, y:64*3},{w:64, h:128}, false, [map2, map3], [{x:-32, y: 64*3}, {x:6*64+32, y:4*64}]
 )
 new Door({x:-64, y:256-64}, {w:64, h:128}, false, [testMap, map2], [{x:-64, y: 256-64}, {x:64*11,y: 256-64}])
