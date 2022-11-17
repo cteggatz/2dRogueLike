@@ -181,7 +181,7 @@ const player = {
         var futureX = (this.x + vx);
         var map = mapStack[mapNumber]
         var futureY = (this.y + vy);
-        console.log(futureX)
+        //console.log(futureX)
         var playerX = Math.floor(player.getX()/tileUpscale);
         var playerY = Math.floor(player.getY()/tileUpscale);
         //tile collision || change map stack
@@ -198,23 +198,20 @@ const player = {
             }  
         }
         for(var i = 0; i<map.localEntityStack.length; i++){
-            if(futureX + this.size -this.offset>= map.localEntityStack[i].pos.x &&
-                futureX - this.offset < map.localEntityStack[i].pos.x + map.localEntityStack[i].size.w &&
-                futureY + this.size -this.offset >= map.localEntityStack[i].pos.x &&
-                futureY-this.offset < map.localEntityStack[i].pos.y + map.localEntityStack[i].size.h){
-                    map.localEntityStack[i].onCollision(this);
-                    if(map.localEntityStack[i].rigid){
-                        return true
-                    }
-                } else if(Math.floor(map.localEntityStack[i].pos.x) == Math.floor(this.x-this.offset) && Math.floor(map.localEntityStack[i].pos.y) == Math.floor(this.y-this.offset)){
-                    console.log("colliding")
-                    map.localEntityStack[i].onCollision(this);
-                    if(map.localEntityStack[i].rigid){
-                        return true
+            var mob = map.localEntityStack[i];
+            if(this.x + this.size - 48 >= mob.pos.x &&
+                this.x -12< mob.pos.x + mob.size.w &&
+                this.y + this.size - 32>= mob.pos.y &&
+                this.y -12< mob.pos.y + mob.size.h){
+                    mob.onCollision(this);
+                    if(mob.rigid){
+                        return true; 
                     }
                 }
         }
         return false;
+    
+        
     }
 }
 //objects
@@ -356,6 +353,7 @@ class Jared extends GameObject{
             mapStack[mapNumber].localEntityStack.indexOf(this),
             1);
         delete(this);
+        
     }
 }
 
