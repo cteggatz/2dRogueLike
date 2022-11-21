@@ -299,17 +299,16 @@ class Jared extends GameObject{
         this.dtTimer = 0;
     }
     update(dt){
-        
+        this.collision()
         var xDif = player.x - this.pos.x;
         var yDif = player.y - this.pos.y;
         var hypotinuse = Math.sqrt(Math.pow(xDif,2) + Math.pow(yDif,2));
         var deltaSpeed = dt*this.speed;
-        var xMove = (xDif * deltaSpeed) / hypotinuse;
-        var yMove = (yDif * deltaSpeed) / hypotinuse;
+        this.vVec.x= (xDif * deltaSpeed) / hypotinuse;
+        this.vVec.y= (yDif * deltaSpeed) / hypotinuse;
         
         if(this.dtTimer > 2){
-            this.pos.x += xMove;
-            this.pos.y += yMove;
+            this.move(this.vVec.x, this.vVec.y);
         } else {this.dtTimer++}
     }
     draw(viewport){
@@ -340,12 +339,15 @@ class Jared extends GameObject{
     }
     move(x,y){
         if(x != 0 && y!= 0){
-            move(x, 0);
-            move(0,y);
+            this.move(x, 0);
+            this.move(0,y);
             return;
         }
-        this.pos.x = x;
-        this.pos.y = y;
+        if(!this.collision(x,y)){
+            console.log("not colli")
+            this.pos.x += x;
+            this.pos.y += y;
+        }
     }
     onCollision(player){
         console.log("collideing")
@@ -354,6 +356,27 @@ class Jared extends GameObject{
             1);
         delete(this);
         
+    }
+    collision(vx, vy){
+        var map = mapStack[mapNumber];
+        var futureX = this.pos.x + vx;
+        var futureY = this.pos.y + vy;
+        var posX = Math.floor(this.pos.x/tileUpscale);
+        var posY = Math.floor(this.pos.y/tileUpscale);
+        for(let i = posX-1; i<= posX+1; i++){
+            for(let j = posY-1; j<= posX+1; j++){
+                if(futureX>= j*64 && 
+                    futureX <= (j*64)+map.tileSize &&
+                    futureY>= i*64 &&
+                    futureY<= (i*64) + map.tileSize){
+                        ctx.fillStyle = "white"
+                        ctx.fillText(`i: ${i}`, 10 ,80);
+                    return true;
+                }
+                
+            }
+        }
+        return false
     }
 }
 
@@ -392,7 +415,7 @@ PlayerDebug.prototype = {
         ctx.fillText(`Player_Velocity: ${this.vVec.x}, ${this.vVec.y}`,10,40)
         ctx.fillText(`W: ${player.keys[0]}, S: ${player.keys[1]}, a: ${player.keys[2]}, d: ${player.keys[3]} Shift: ${player.keys[4]}`,10,50)
         ctx.fillText(`delta time: ${this.dt}`, 10, 60)
-        ctx.fillText(`jared pos: ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.x)}, ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.y)}`, 10 ,70);
+        ctx.fillText(`jared pos: ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.x)}, ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.y)}, vx : ${mapStack[mapNumber].localEntityStack[0].vVec.x}, vx : ${mapStack[mapNumber].localEntityStack[0].vVec.y}`, 10 ,70);
     }
 }
 
@@ -406,8 +429,8 @@ const testMap = new TileMap(64, 4,
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [0,0,0,0,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [3,0,0,0,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
@@ -427,7 +450,7 @@ const testMap = new TileMap(64, 4,
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
-],[3], [new Jared({x:400, y:400}, {w:32, h:32}, false)])
+],[3], [new Jared({x:400, y:600}, {w:32, h:32}, false)])
 const map2 = new TileMap(64, 4, 
     document.getElementById("TestTileSheet"),
     [[0,0,0,0,0,0,0,0,0,0,0],
