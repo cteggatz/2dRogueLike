@@ -344,18 +344,15 @@ class Jared extends GameObject{
             return;
         }
         if(!this.collision(x,y)){
-            console.log("not colli")
             this.pos.x += x;
             this.pos.y += y;
         }
     }
     onCollision(player){
-        console.log("collideing")
         mapStack[mapNumber].localEntityStack.splice(
             mapStack[mapNumber].localEntityStack.indexOf(this),
             1);
-        delete(this);
-        
+        delete(this);   
     }
     collision(vx, vy){
         var map = mapStack[mapNumber];
@@ -363,20 +360,18 @@ class Jared extends GameObject{
         var futureY = this.pos.y + vy;
         var posX = Math.floor(this.pos.x/tileUpscale);
         var posY = Math.floor(this.pos.y/tileUpscale);
-        for(let i = posX-1; i<= posX+1; i++){
-            for(let j = posY-1; j<= posX+1; j++){
-                if(futureX>= j*64 && 
+        for(let i = (posY-1); i<=(posY+1);i++){
+            for(let j = (posX-1); j<=(posX+1); j++){
+                if(map.rigid(i,j) === false){continue}
+                if(futureX +28 >= j*64 &&
                     futureX <= (j*64)+map.tileSize &&
-                    futureY>= i*64 &&
-                    futureY<= (i*64) + map.tileSize){
-                        ctx.fillStyle = "white"
-                        ctx.fillText(`i: ${i}`, 10 ,80);
-                    return true;
-                }
-                
+                    futureY+32 >= i*64 &&
+                    futureY <= (i*64)+map.tileSize){
+                        return true;
+                    }
             }
         }
-        return false
+        return false;
     }
 }
 
@@ -415,7 +410,6 @@ PlayerDebug.prototype = {
         ctx.fillText(`Player_Velocity: ${this.vVec.x}, ${this.vVec.y}`,10,40)
         ctx.fillText(`W: ${player.keys[0]}, S: ${player.keys[1]}, a: ${player.keys[2]}, d: ${player.keys[3]} Shift: ${player.keys[4]}`,10,50)
         ctx.fillText(`delta time: ${this.dt}`, 10, 60)
-        ctx.fillText(`jared pos: ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.x)}, ${Math.floor(mapStack[mapNumber].localEntityStack[0].pos.y)}, vx : ${mapStack[mapNumber].localEntityStack[0].vVec.x}, vx : ${mapStack[mapNumber].localEntityStack[0].vVec.y}`, 10 ,70);
     }
 }
 
